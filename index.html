@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nikka Asuncion — Google Workspace Automation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Nunito:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #fdf8f4;
+      --blush: #f5e6e0;
+      --rose: #e8c4b8;
+      --dusty: #c9897a;
+      --mauve: #a0596a;
+      --deep: #6b3a47;
+      --sage: #b8c9b0;
+      --sage-light: #e8f0e4;
+      --text: #3d2430;
+      --muted: #937080;
+      --card: #fffaf7;
+      --border: #f0ddd6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.22;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 500px; height: 500px; background: #e8c4b8; top: -100px; right: -100px; }
+    .blob-2 { width: 400px; height: 400px; background: #b8c9b0; bottom: 200px; left: -100px; }
+    .blob-3 { width: 300px; height: 300px; background: #f5e6e0; top: 50%; left: 40%; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(253,248,244,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem; color: var(--mauve); }
+    .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 400; letter-spacing: 0.06em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--mauve); }
+
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; gap: 4rem;
+      padding: 8rem 3rem 5rem;
+      max-width: 1150px; margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: var(--blush); border: 1px solid var(--rose); color: var(--mauve);
+      font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.4rem 1rem; border-radius: 50px; margin-bottom: 1.8rem;
+      opacity: 0; animation: fadeUp 0.7s 0.2s forwards;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 5.5vw, 5rem);
+      font-weight: 400; line-height: 1.1; margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+    }
+    .hero h1 em { font-style: italic; color: var(--mauve); }
+
+    .hero-desc {
+      font-size: 1rem; color: var(--muted); line-height: 1.85; max-width: 480px; margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+    }
+
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.7s 0.65s forwards; }
+
+    .btn-primary {
+      background: var(--mauve); color: #fff; padding: 0.8rem 2rem; border-radius: 50px;
+      text-decoration: none; font-size: 0.88rem; font-weight: 500; letter-spacing: 0.04em;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 4px 20px rgba(160,89,106,0.25);
+    }
+    .btn-primary:hover { background: var(--deep); transform: translateY(-2px); }
+
+    .btn-ghost {
+      border: 1.5px solid var(--rose); color: var(--mauve); padding: 0.8rem 2rem; border-radius: 50px;
+      text-decoration: none; font-size: 0.88rem; font-weight: 400;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { background: var(--blush); transform: translateY(-2px); }
+
+    .hero-right {
+      opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+
+    .hero-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 1.8rem 2rem; box-shadow: 0 4px 30px rgba(160,89,106,0.07);
+    }
+    .hero-card-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dusty); margin-bottom: 0.5rem; }
+    .hero-card-val { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--deep); line-height: 1; }
+    .hero-card-sub { font-size: 0.82rem; color: var(--muted); margin-top: 0.3rem; }
+    .hero-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .hero-quote {
+      background: linear-gradient(135deg, var(--blush), #fdf0eb);
+      border: 1px solid var(--rose); border-radius: 20px; padding: 1.8rem 2rem;
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.1rem;
+      color: var(--deep); line-height: 1.65;
+    }
+    .hero-quote span {
+      display: block; font-family: 'Nunito', sans-serif; font-style: normal;
+      font-size: 0.75rem; color: var(--dusty); margin-top: 0.8rem; letter-spacing: 0.06em;
+    }
+
+    section { position: relative; z-index: 1; max-width: 1150px; margin: 0 auto; padding: 5.5rem 3rem; }
+
+    .section-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--dusty); margin-bottom: 0.8rem;
+    }
+    .section-eyebrow::before { content: ''; display: block; width: 24px; height: 1.5px; background: var(--rose); }
+
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 400; line-height: 1.15; margin-bottom: 0.8rem; }
+    .section-title em { font-style: italic; color: var(--mauve); }
+    .section-sub { color: var(--muted); font-size: 0.95rem; max-width: 520px; margin-bottom: 3rem; line-height: 1.8; }
+
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+    .service-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2rem;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .service-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(160,89,106,0.1); }
+    .svc-icon {
+      width: 46px; height: 46px; background: var(--blush); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 1.1rem;
+    }
+    .service-card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 400; margin-bottom: 0.6rem; color: var(--deep); }
+    .service-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.75; }
+
+    .projects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.3rem; }
+    .project-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2rem 2.2rem;
+      transition: transform 0.25s, box-shadow 0.25s; position: relative; overflow: hidden;
+    }
+    .project-card::after {
+      content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px;
+      background: radial-gradient(circle at top right, var(--blush), transparent 70%); pointer-events: none;
+    }
+    .project-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(160,89,106,0.1); }
+    .proj-tag {
+      display: inline-block; background: var(--sage-light); color: #5a7a52;
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.25rem 0.75rem; border-radius: 50px; margin-bottom: 0.9rem;
+    }
+    .project-card h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 400; color: var(--deep); margin-bottom: 0.6rem; }
+    .project-card p { font-size: 0.86rem; color: var(--muted); line-height: 1.75; margin-bottom: 1.3rem; }
+    .proj-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .chip { font-size: 0.72rem; background: var(--blush); color: var(--mauve); border: 1px solid var(--rose); padding: 0.22rem 0.65rem; border-radius: 50px; }
+
+    .stack-wrap { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+    .stack-pill {
+      display: flex; align-items: center; gap: 0.55rem;
+      background: var(--card); border: 1px solid var(--border); border-radius: 50px;
+      padding: 0.55rem 1.2rem; font-size: 0.87rem; color: var(--text); font-weight: 400;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .stack-pill:hover { background: var(--blush); border-color: var(--rose); }
+    .stack-pill span:first-child { font-size: 1rem; }
+
+    .about-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 5rem; align-items: start; }
+    .about-text p { font-size: 0.95rem; color: var(--muted); line-height: 1.9; margin-bottom: 1.1rem; }
+    .about-text p strong { color: var(--text); font-weight: 500; }
+    .about-aside { background: linear-gradient(160deg, #fdf0eb, var(--cream)); border: 1px solid var(--border); border-radius: 20px; padding: 2.2rem; }
+    .about-aside h4 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 400; color: var(--deep); margin-bottom: 1.3rem; font-style: italic; }
+    .aside-list { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; }
+    .aside-list li { display: flex; gap: 0.8rem; font-size: 0.875rem; color: var(--muted); padding-bottom: 0.9rem; border-bottom: 1px solid var(--border); line-height: 1.6; }
+    .aside-list li:last-child { border-bottom: none; padding-bottom: 0; }
+    .dot { width: 6px; height: 6px; background: var(--rose); border-radius: 50%; flex-shrink: 0; margin-top: 0.5rem; }
+
+    .contact-inner {
+      background: linear-gradient(135deg, #fdf0eb 0%, #f8edf5 100%);
+      border: 1px solid var(--rose); border-radius: 28px; padding: 4.5rem 3rem; text-align: center;
+      max-width: 620px; margin: 0 auto; box-shadow: 0 20px 60px rgba(160,89,106,0.1);
+    }
+    .contact-flower { font-size: 2.5rem; margin-bottom: 1.2rem; display: block; }
+    .contact-inner h2 { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 400; margin-bottom: 0.8rem; color: var(--deep); }
+    .contact-inner h2 em { font-style: italic; color: var(--mauve); }
+    .contact-inner p { color: var(--muted); font-size: 0.95rem; margin-bottom: 2.2rem; line-height: 1.8; }
+    .contact-btns { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+    .divider { border: none; border-top: 1px solid var(--border); max-width: 1150px; margin: 0 auto; }
+
+    footer { border-top: 1px solid var(--border); text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--muted); }
+    footer em { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--dusty); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.65s, transform 0.65s; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 7rem 1.8rem 4rem; }
+      .hero-right { display: none; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      section { padding: 4rem 1.8rem; }
+      nav { padding: 1rem 1.8rem; }
+    }
+    @media (max-width: 600px) {
+      .services-grid { grid-template-columns: 1fr; }
+      .nav-links { gap: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<nav>
+  <div class="nav-logo">Nikka Asuncion</div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">✦ Google Workspace Automation</div>
+    <h1>Systems that <em>actually</em><br>work for you.</h1>
+    <p class="hero-desc">I build clean, structured automation in Google Workspace — so your team spends less time managing spreadsheets and more time doing the work that matters.</p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn-primary">See My Work</a>
+      <a href="#contact" class="btn-ghost">Let's Talk</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-quote">
+      "Structure first, automation second. A well-organized system is 80% of the work."
+      <span>— Nikka's approach</span>
+    </div>
+    <div class="hero-cards-row">
+      <div class="hero-card">
+        <div class="hero-card-label">Upwork Earnings</div>
+        <div class="hero-card-val">$100K+</div>
+        <div class="hero-card-sub">Across 61 contracts</div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-label">Client Rating</div>
+        <div class="hero-card-val">5.0 ★</div>
+        <div class="hero-card-sub">Consistent feedback</div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-label">Experience</div>
+      <div class="hero-card-val">12+ Years</div>
+      <div class="hero-card-sub">Operations, VA & Systems Building</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<section id="services">
+  <p class="section-eyebrow reveal">What I Do</p>
+  <h2 class="section-title reveal">Services that <em>simplify</em> your work</h2>
+  <p class="section-sub reveal">Focused on Google Workspace — because depth beats breadth every time.</p>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="svc-icon">📊</div>
+      <h3>Dashboards & Reporting</h3>
+      <p>KPI dashboards, progress trackers, and visual summaries in Google Sheets. Filter by user, category, or timeframe — always current.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="svc-icon">⚙️</div>
+      <h3>Workflow Automation</h3>
+      <p>Apps Script automations that move data, send notifications, and update statuses automatically — so your team stops doing it manually.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="svc-icon">🗂️</div>
+      <h3>Data Architecture</h3>
+      <p>Relational structures in Google Sheets — Companies, Contacts, Deals, Invoices. Clean, scalable, and built for non-technical users.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="svc-icon">📋</div>
+      <h3>Form & Intake Systems</h3>
+      <p>Google Forms with conditional logic, validation, and automated responses — built to collect clean data from the very first submission.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="svc-icon">🤖</div>
+      <h3>AI-Assisted Workflows</h3>
+      <p>Combining Google Workspace with AI — email triage, lead qualification, auto-responders. Structured, automated, and easy to maintain.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="svc-icon">✨</div>
+      <h3>Spreadsheet Clean-Up</h3>
+      <p>If your current sheet is a mess, I'll restructure it into something your whole team can use and maintain — without breaking things.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<section id="projects">
+  <p class="section-eyebrow reveal">Built & Deployed</p>
+  <h2 class="section-title reveal">Real systems for <em>real teams</em></h2>
+  <p class="section-sub reveal">Some deployed in active workflows, others rebuilt as demonstrations. All solving genuine operational problems.</p>
+  <div class="projects-grid">
+    <div class="project-card reveal">
+      <span class="proj-tag">AI Workflow</span>
+      <h3>AI Email Triage Dashboard</h3>
+      <p>Reads incoming emails, classifies by type, assigns urgency, suggests action, and logs structured data to a live auto-updating dashboard.</p>
+      <div class="proj-chips"><span class="chip">Apps Script</span><span class="chip">Gmail API</span><span class="chip">Google Sheets</span><span class="chip">Dashboard</span></div>
+    </div>
+    <div class="project-card reveal">
+      <span class="proj-tag">AI Workflow</span>
+      <h3>AI Lead Qualification System</h3>
+      <p>Google Form → Lead Database pipeline with AI scoring. Categorizes leads hot/warm/cold and surfaces insights on a live dashboard.</p>
+      <div class="proj-chips"><span class="chip">Google Forms</span><span class="chip">Apps Script</span><span class="chip">Lead Scoring</span><span class="chip">Dashboard</span></div>
+    </div>
+    <div class="project-card reveal">
+      <span class="proj-tag">Scheduling</span>
+      <h3>Booking & Scheduling System</h3>
+      <p>Rule-based booking with conflict detection, availability logic, and confirmation workflows for shared resources.</p>
+      <div class="proj-chips"><span class="chip">Apps Script</span><span class="chip">Google Sheets</span><span class="chip">Conflict Detection</span><span class="chip">Forms</span></div>
+    </div>
+    <div class="project-card reveal">
+      <span class="proj-tag">Operations</span>
+      <h3>Inventory Tracking System</h3>
+      <p>Logsheet-to-master aggregation. Tracks stock movement and generates summaries automatically — no manual consolidation.</p>
+      <div class="proj-chips"><span class="chip">Google Sheets</span><span class="chip">Apps Script</span><span class="chip">Aggregation Logic</span></div>
+    </div>
+    <div class="project-card reveal">
+      <span class="proj-tag">HR / Admin</span>
+      <h3>Attendance Tracker</h3>
+      <p>Automated logging and summary system with multi-user support, date filtering, and weekly/monthly reports.</p>
+      <div class="proj-chips"><span class="chip">Google Sheets</span><span class="chip">Apps Script</span><span class="chip">Time-based Triggers</span></div>
+    </div>
+    <div class="project-card reveal">
+      <span class="proj-tag">Operations</span>
+      <h3>Class Preparation Tracker</h3>
+      <p>Status-based workflow (Upcoming → Ongoing → Past) with automatic stage movement by date.</p>
+      <div class="proj-chips"><span class="chip">Google Sheets</span><span class="chip">Apps Script</span><span class="chip">Status Workflow</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<section id="stack">
+  <p class="section-eyebrow reveal">Tools</p>
+  <h2 class="section-title reveal">My <em>tech stack</em></h2>
+  <p class="section-sub reveal">Deep in Google Workspace. Everything I build is maintainable by non-technical teams from day one.</p>
+  <div class="stack-wrap reveal">
+    <div class="stack-pill"><span>📊</span><span>Google Sheets</span></div>
+    <div class="stack-pill"><span>⚙️</span><span>Google Apps Script</span></div>
+    <div class="stack-pill"><span>📋</span><span>Google Forms</span></div>
+    <div class="stack-pill"><span>📁</span><span>Google Drive</span></div>
+    <div class="stack-pill"><span>📧</span><span>Gmail Automation</span></div>
+    <div class="stack-pill"><span>📅</span><span>Google Calendar</span></div>
+    <div class="stack-pill"><span>📄</span><span>Google Docs</span></div>
+    <div class="stack-pill"><span>📈</span><span>Microsoft Excel</span></div>
+    <div class="stack-pill"><span>💻</span><span>JavaScript (GAS)</span></div>
+    <div class="stack-pill"><span>🤖</span><span>AI Workflow Integration</span></div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<section id="about">
+  <p class="section-eyebrow reveal">Background</p>
+  <h2 class="section-title reveal">A little <em>about me</em></h2>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>I'm a <strong>Google Workspace Automation Specialist</strong> based in the Philippines, with over 12 years of professional experience spanning operations, executive support, and now — systems building.</p>
+      <p>My background isn't typical for a developer. I came up through <strong>medical transcription and executive VA work</strong>, which means I understand how real-world workflows fall apart before I ever write a single line of script.</p>
+      <p>That's the difference. I don't just build what you ask for — I build what actually solves the problem, in a way your team can maintain without needing me on speed dial.</p>
+      <p>My philosophy: <strong>structure first, automation second.</strong> A well-organized system is 80% of the work. The automation is just the payoff.</p>
+    </div>
+    <div class="about-aside reveal">
+      <h4>At a glance</h4>
+      <ul class="aside-list">
+        <li><div class="dot"></div>12+ years in operations, admin & workflow support</li>
+        <li><div class="dot"></div>Medical transcription background — high-precision data handling</li>
+        <li><div class="dot"></div>$100K+ earned on Upwork across 61 contracts</li>
+        <li><div class="dot"></div>Builds for non-technical daily users — clarity is non-negotiable</li>
+        <li><div class="dot"></div>Fluent in English, Filipino, and Korean</li>
+        <li><div class="dot"></div>Available for part-time, contract & freelance work</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<section id="contact">
+  <div class="contact-inner reveal">
+    <span class="contact-flower">🌸</span>
+    <h2>Let's build <em>something</em>.</h2>
+    <p>Have a messy spreadsheet, a manual process, or a workflow you want to automate? I'd love to hear about it — no pressure, just a conversation.</p>
+    <div class="contact-btns">
+      <a href="https://www.upwork.com/freelancers/~01bb360314dba7d77e" class="btn-primary" target="_blank">View Upwork Profile</a>
+      <a href="mailto:asuncion.nikrd@gmail.com" class="btn-ghost">Send an Email</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 <em>Nikka Asuncion</em> · Google Workspace Automation Specialist · Imus, Cavite, Philippines</p>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 70);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
