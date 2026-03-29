@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Email Triage Dashboard — Nikka Asuncion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Nunito:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #fdf8f4;
+      --blush: #f5e6e0;
+      --rose: #e8c4b8;
+      --dusty: #c9897a;
+      --mauve: #a0596a;
+      --deep: #6b3a47;
+      --sage: #b8c9b0;
+      --sage-light: #e8f0e4;
+      --text: #3d2430;
+      --muted: #937080;
+      --card: #fffaf7;
+      --border: #f0ddd6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── Blobs ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 500px; height: 500px; background: #e8c4b8; top: -100px; right: -100px; }
+    .blob-2 { width: 400px; height: 400px; background: #b8c9b0; bottom: 200px; left: -100px; }
+    .blob-3 { width: 300px; height: 300px; background: #f5e6e0; top: 60%; left: 50%; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(253,248,244,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-size: 1.2rem; color: var(--mauve);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.85rem;
+      font-weight: 400; letter-spacing: 0.06em; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--mauve); }
+
+    /* ── Hero ── */
+    .project-hero {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 0 auto;
+      padding: 9rem 3rem 4rem;
+      text-align: center;
+    }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: var(--muted); text-decoration: none; font-size: 0.82rem;
+      letter-spacing: 0.04em; margin-bottom: 2rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--mauve); }
+    .back-link svg { width: 14px; height: 14px; }
+
+    .project-tag {
+      display: inline-block;
+      background: var(--sage-light); color: #5a7a52;
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.3rem 0.9rem; border-radius: 50px; margin-bottom: 1.5rem;
+    }
+
+    .project-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+      font-weight: 400; line-height: 1.15; margin-bottom: 1.2rem;
+    }
+    .project-hero h1 em { font-style: italic; color: var(--mauve); }
+
+    .project-hero-desc {
+      font-size: 1.05rem; color: var(--muted); line-height: 1.85;
+      max-width: 620px; margin: 0 auto 2.5rem;
+    }
+
+    .hero-chips {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .chip {
+      font-size: 0.74rem; background: var(--blush); color: var(--mauve);
+      border: 1px solid var(--rose); padding: 0.25rem 0.75rem; border-radius: 50px;
+    }
+
+    /* ── Sections ── */
+    .content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 3rem; }
+
+    .section-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--dusty); margin-bottom: 0.8rem;
+    }
+    .section-eyebrow::before {
+      content: ''; display: block; width: 24px; height: 1.5px; background: var(--rose);
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 400; line-height: 1.2; margin-bottom: 1.8rem;
+    }
+    .section-title em { font-style: italic; color: var(--mauve); }
+
+    section.block { padding: 4rem 0; }
+
+    .divider {
+      border: none; border-top: 1px solid var(--border);
+      max-width: 900px; margin: 0 auto;
+    }
+
+    /* ── Problem / Solution ── */
+    .ps-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    }
+    .ps-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 2rem;
+    }
+    .ps-card h3 {
+      font-family: 'Playfair Display', serif; font-size: 1.1rem;
+      font-weight: 400; color: var(--deep); margin-bottom: 0.8rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .ps-card p {
+      font-size: 0.9rem; color: var(--muted); line-height: 1.8;
+    }
+
+    /* ── Screenshot Gallery ── */
+    .gallery {
+      display: flex; flex-direction: column; gap: 2.5rem;
+    }
+    .gallery-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .gallery-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 50px rgba(160,89,106,0.1);
+    }
+    .gallery-img {
+      width: 100%;
+      display: block;
+      border-bottom: 1px solid var(--border);
+    }
+    .gallery-caption {
+      padding: 1.4rem 1.8rem;
+    }
+    .gallery-caption h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; font-weight: 400; color: var(--deep);
+      margin-bottom: 0.35rem;
+    }
+    .gallery-caption p {
+      font-size: 0.84rem; color: var(--muted); line-height: 1.7;
+    }
+
+    /* ── Features List ── */
+    .features-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+    }
+    .feature-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.4rem 1.6rem;
+      transition: transform 0.2s;
+    }
+    .feature-item:hover { transform: translateY(-2px); }
+    .feature-icon {
+      font-size: 1.2rem; margin-bottom: 0.5rem; display: block;
+    }
+    .feature-item h4 {
+      font-family: 'Nunito', sans-serif; font-size: 0.88rem;
+      font-weight: 600; color: var(--deep); margin-bottom: 0.3rem;
+    }
+    .feature-item p {
+      font-size: 0.82rem; color: var(--muted); line-height: 1.65;
+    }
+
+    /* ── How It Works ── */
+    .flow-steps {
+      display: flex; flex-direction: column; gap: 0;
+      position: relative;
+    }
+    .flow-step {
+      display: grid; grid-template-columns: 56px 1fr; gap: 1.2rem;
+      position: relative;
+    }
+    .flow-marker {
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .flow-dot {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--blush); border: 2px solid var(--rose);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 0.9rem;
+      color: var(--mauve); font-weight: 600; flex-shrink: 0;
+    }
+    .flow-line {
+      width: 2px; flex: 1; background: var(--border); margin: 0.3rem 0;
+    }
+    .flow-step:last-child .flow-line { display: none; }
+    .flow-content {
+      padding-bottom: 2rem;
+    }
+    .flow-content h4 {
+      font-family: 'Playfair Display', serif; font-size: 1rem;
+      font-weight: 400; color: var(--deep); margin-bottom: 0.3rem;
+    }
+    .flow-content p {
+      font-size: 0.86rem; color: var(--muted); line-height: 1.7;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 0 auto;
+      padding: 4rem 3rem 5rem;
+    }
+    .cta-inner {
+      background: linear-gradient(135deg, #fdf0eb 0%, #f8edf5 100%);
+      border: 1px solid var(--rose); border-radius: 24px;
+      padding: 3.5rem 3rem; text-align: center;
+      box-shadow: 0 20px 60px rgba(160,89,106,0.1);
+    }
+    .cta-inner h2 {
+      font-family: 'Playfair Display', serif; font-size: 2rem;
+      font-weight: 400; color: var(--deep); margin-bottom: 0.6rem;
+    }
+    .cta-inner h2 em { font-style: italic; color: var(--mauve); }
+    .cta-inner p {
+      color: var(--muted); font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.8;
+    }
+    .cta-btns { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: var(--mauve); color: #fff; padding: 0.8rem 2rem;
+      border-radius: 50px; text-decoration: none; font-size: 0.88rem;
+      font-weight: 500; letter-spacing: 0.04em;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 4px 20px rgba(160,89,106,0.25);
+    }
+    .btn-primary:hover { background: var(--deep); transform: translateY(-2px); }
+
+    .btn-ghost {
+      border: 1.5px solid var(--rose); color: var(--mauve);
+      padding: 0.8rem 2rem; border-radius: 50px; text-decoration: none;
+      font-size: 0.88rem; font-weight: 400;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { background: var(--blush); transform: translateY(-2px); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border); text-align: center;
+      padding: 2rem; font-size: 0.8rem; color: var(--muted);
+    }
+    footer em {
+      font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--dusty);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.65s, transform 0.65s; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.4rem; }
+      .project-hero { padding: 7rem 1.5rem 3rem; }
+      .content { padding: 0 1.5rem; }
+      .ps-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .cta-section { padding: 3rem 1.5rem 4rem; }
+      .cta-inner { padding: 2.5rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="index.html" class="nav-logo">Nikka Asuncion</a>
+  <ul class="nav-links">
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<div class="project-hero">
+  <a href="index.html#projects" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Back to all projects
+  </a>
+  <div>
+    <span class="project-tag">AI Workflow</span>
+    <h1>AI Email Triage <em>Dashboard</em></h1>
+    <p class="project-hero-desc">An automated email classification system powered by Gemini AI. Reads incoming Gmail, classifies by category and urgency, suggests actions, and feeds a live auto-updating dashboard — so you stop sorting emails and start acting on them.</p>
+    <div class="hero-chips">
+      <span class="chip">Google Apps Script</span>
+      <span class="chip">Gmail API</span>
+      <span class="chip">Gemini AI</span>
+      <span class="chip">Google Sheets</span>
+      <span class="chip">Dashboard</span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<div class="content">
+
+  <!-- Problem / Solution -->
+  <section class="block reveal">
+    <p class="section-eyebrow">Why This Exists</p>
+    <h2 class="section-title">The <em>problem</em> it solves</h2>
+    <div class="ps-grid">
+      <div class="ps-card">
+        <h3>😩 Before</h3>
+        <p>Business owners spending 1–2 hours daily reading, sorting, and prioritizing emails manually. Important requests buried under newsletters. Urgent issues missed. No visibility into email volume or patterns.</p>
+      </div>
+      <div class="ps-card">
+        <h3>✨ After</h3>
+        <p>Emails are automatically read, classified, and prioritized every 15 minutes. High-urgency items surface instantly. A live dashboard shows category distribution, urgency levels, and suggested actions at a glance.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- How It Works -->
+  <section class="block reveal">
+    <p class="section-eyebrow">Under The Hood</p>
+    <h2 class="section-title">How <em>it works</em></h2>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-marker"><div class="flow-dot">1</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <h4>Fetch unread emails</h4>
+          <p>Every 15 minutes, the script checks Gmail for new unread messages using time-driven triggers. Already-processed emails are skipped via Message ID tracking.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-marker"><div class="flow-dot">2</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <h4>AI classification</h4>
+          <p>Each email's subject and body are sent to Gemini AI for analysis. The AI returns a category (Sales, Support, Billing, Other), urgency level, summary, and suggested action. If the API is unavailable, a keyword-based fallback runs automatically.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-marker"><div class="flow-dot">3</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <h4>Log to database</h4>
+          <p>Results are batch-written to the Email Database sheet with timestamp, sender, classification data, and a direct Gmail thread link. Processed emails get labeled "Triaged" in Gmail.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-marker"><div class="flow-dot">4</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <h4>Dashboard updates</h4>
+          <p>The Dashboard sheet auto-updates using COUNTIF formulas — total volume, category breakdown, urgency distribution, and a filtered high-urgency table. Charts visualize the data in real time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- Screenshots -->
+  <section class="block reveal">
+    <p class="section-eyebrow">In Action</p>
+    <h2 class="section-title">See <em>it work</em></h2>
+    <div class="gallery">
+      <div class="gallery-item">
+        <img src="projects/screenshots/email-triage-dashboard.png" alt="AI Email Triage Dashboard showing metrics, charts, and high urgency table" class="gallery-img"/>
+        <div class="gallery-caption">
+          <h4>Live Dashboard</h4>
+          <p>Auto-updating metrics, category distribution chart, urgency levels, and a filtered high-urgency table — all powered by COUNTIF formulas pointing at the Email Database.</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="projects/screenshots/email-triage-database.png" alt="Email Database sheet showing classified emails with categories, urgency, and actions" class="gallery-img"/>
+        <div class="gallery-caption">
+          <h4>Email Database</h4>
+          <p>Every processed email logged with timestamp, sender, AI-assigned category, urgency, summary, suggested action, and a direct link back to the Gmail thread.</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="projects/screenshots/email-triage-menu.png" alt="Custom Inbox Automation menu in Google Sheets" class="gallery-img"/>
+        <div class="gallery-caption">
+          <h4>Custom Menu</h4>
+          <p>One-click access to process emails, setup dashboard formulas, enable auto-processing, create Gmail labels, and manage test data — built for non-technical users.</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="projects/screenshots/email-triage-gmail.png" alt="Gmail inbox showing Triaged labels on processed emails" class="gallery-img"/>
+        <div class="gallery-caption">
+          <h4>Gmail Integration</h4>
+          <p>Processed emails are automatically marked as read and labeled "Triaged" in Gmail — so you always know what's been handled.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- Features -->
+  <section class="block reveal">
+    <p class="section-eyebrow">What's Built In</p>
+    <h2 class="section-title">Key <em>features</em></h2>
+    <div class="features-grid">
+      <div class="feature-item">
+        <span class="feature-icon">🤖</span>
+        <h4>Gemini AI Classification</h4>
+        <p>Uses Google's free Gemini API to classify emails with high accuracy. Falls back to keyword matching if the API is unavailable.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">⏱</span>
+        <h4>Auto-Processing</h4>
+        <p>Time-driven trigger runs every 15 minutes. No manual intervention needed — set it and forget it.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔒</span>
+        <h4>Duplicate Prevention</h4>
+        <p>Tracks Gmail Message IDs to ensure no email is processed twice, even if triggers overlap.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📊</span>
+        <h4>Live Dashboard</h4>
+        <p>Formula-driven metrics, pie charts, and bar charts that update automatically as new emails are classified.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🏷</span>
+        <h4>Gmail Labeling</h4>
+        <p>Processed emails are labeled "Triaged" in Gmail for easy filtering and follow-up.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔗</span>
+        <h4>Direct Gmail Links</h4>
+        <p>Each database row includes a clickable link to the original Gmail thread — one click to read the full email.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📝</span>
+        <h4>Error Logging</h4>
+        <p>Dedicated Error Log sheet captures any processing failures with timestamps and details — nothing fails silently.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🧪</span>
+        <h4>Built-in Test Suite</h4>
+        <p>Send 5 realistic test emails to yourself with one click to demo the full pipeline end-to-end.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<hr class="divider"/>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner reveal">
+    <h2>Need something <em>like this?</em></h2>
+    <p>Whether it's email triage, lead scoring, or any workflow that needs structure and automation — I build systems your team can actually use.</p>
+    <div class="cta-btns">
+      <a href="https://www.upwork.com/freelancers/~01bb360314dba7d77e" class="btn-primary" target="_blank">Hire Me on Upwork</a>
+      <a href="mailto:asuncion.nikrd@gmail.com" class="btn-ghost">Send an Email</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2025 <em>Nikka Asuncion</em> · Google Workspace Automation Specialist · Imus, Cavite, Philippines</p>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
