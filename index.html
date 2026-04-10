@@ -122,6 +122,50 @@
     .section-sub { color: var(--muted); font-size: 0.95rem; max-width: 560px; margin-bottom: 3rem; line-height: 1.8; }
     .divider { border: none; border-top: 1px solid var(--border); max-width: 1150px; margin: 0 auto; }
 
+    /* SCREENSHOTS */
+    .screenshots-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem;
+      margin: 1.5rem 0;
+    }
+    .screenshot-frame {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(160,89,106,0.1);
+      background: #fff;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .screenshot-frame:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 40px rgba(160,89,106,0.18);
+    }
+    .screenshot-frame img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .screenshot-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 0.5rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+    .screenshot-note {
+      font-size: 0.75rem;
+      color: var(--dusty);
+      font-style: italic;
+      text-align: center;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 700px) {
+      .screenshots-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
     /* FLAGSHIP PROJECT */
     .flagship {
       background: linear-gradient(135deg, #fdf0eb, #f8edf5);
@@ -308,6 +352,27 @@
     <span class="flagship-tag">⭐ Flagship Project</span>
     <h3>Facility Management Suite</h3>
     <p>A suite of five connected internal systems built for a volunteer-run residential training facility managing 50+ rooms and rotating classes. All built on Google Apps Script. All serving real users daily. Zero paid infrastructure, zero external databases, zero frameworks.</p>
+    <!-- SCREENSHOTS -->
+    <div class="screenshots-row">
+      <div class="screenshot-frame">
+        <img src="projects/screenshots/facilityhub_enter.jpeg" alt="Student Portal — Entry Screen" loading="lazy"/>
+        <div class="screenshot-label">Entry Screen</div>
+      </div>
+      <div class="screenshot-frame">
+        <img src="projects/screenshots/facilityhub_home.jpeg" alt="Student Portal — Home" loading="lazy"/>
+        <div class="screenshot-label">Home</div>
+      </div>
+      <div class="screenshot-frame">
+        <img src="projects/screenshots/facilityhub_directory.jpeg" alt="Student Portal — Directory" loading="lazy"/>
+        <div class="screenshot-label">Directory</div>
+      </div>
+      <div class="screenshot-frame">
+        <img src="projects/screenshots/facilityhub_info.jpeg" alt="Student Portal — Info" loading="lazy"/>
+        <div class="screenshot-label">Info & WiFi</div>
+      </div>
+    </div>
+    <p class="screenshot-note">✦ Client confidential — facility and personal details blurred</p>
+
     <div class="flagship-systems">
       <div class="flagship-system">
         <div class="flagship-system-name">📱 Student Portal (PWA)</div>
@@ -475,7 +540,7 @@
     <p>Have a messy workflow, a manual process that shouldn't be manual, or a system that needs to actually work? I'd love to hear about it.</p>
     <div class="contact-btns">
       <a href="https://www.upwork.com/freelancers/~01bb360314dba7d77e" class="btn-primary" target="_blank">View Upwork Profile</a>
-      <a href="mailto:asuncion.nikrd@gmail.com" class="btn-ghost">Send an Email</a>
+      <a href="/cdn-cgi/l/email-protection#7e1f0d0b101d171110501017150c1a3e19131f1712501d1113" class="btn-ghost">Send an Email</a>
     </div>
   </div>
 </section>
@@ -484,17 +549,9 @@
   <p>© 2026 <em>Nikka Asuncion</em> · Google Apps Script Developer · Imus, Cavite, Philippines</p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   const reveals = document.querySelectorAll('.reveal');
   const obs = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
       if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), i * 70);
-        obs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.08 });
-  reveals.forEach(el => obs.observe(el));
-</script>
-</body>
-</html>
+        setTimeout(() => entry.target.classList.add('visible'), i
